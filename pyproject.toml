@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyletteyes"
+authors = [{name = "Blake Downward", email = "blakedownward@gmail.com"}]
+description = "A comprehensive colour manipulation and evaluation library"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["colour", "palette", "rgb", "hsl"]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version"]
+dependencies = [
+    "Pillow",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "isort",
+    "flake8",
+    "mypy",
+]
+
+[tool.setuptools_scm]
+write_to = "src/pyletteyes/_version.py"
