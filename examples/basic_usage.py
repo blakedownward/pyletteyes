@@ -1,6 +1,6 @@
 from pyletteyes.colour import Colour
 
-# Create a colour
+# Create a colour and print RGB string
 red = Colour.from_hex("#FF0000")
 print(red)
 
