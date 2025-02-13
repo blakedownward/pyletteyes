@@ -16,3 +16,7 @@ print(dark_red)
 complement = red.get_complementary()
 print(complement.to_hex())
 
+# make a pastel of the complementary colour
+pastel = complement.get_pastel()
+print(pastel)
+
