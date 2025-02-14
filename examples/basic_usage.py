@@ -1,4 +1,5 @@
 from pyletteyes.colour import Colour
+from pyletteyes.palette import Palette
 
 # Create a colour and print RGB string
 red = Colour.from_hex("#FF0000")
@@ -19,4 +20,15 @@ print(complement.to_hex())
 # make a pastel of the complementary colour
 pastel = complement.get_pastel()
 print(pastel)
+
+# make a palette of colours
+palette = Palette([pastel, dark_red, red])
+
+# output as a list of rgb strings
+stringy = palette.to_string_list()
+print(stringy)
+
+# or a list of hex codes
+hexs = palette.to_hex_list()
+print(hexs)
 
