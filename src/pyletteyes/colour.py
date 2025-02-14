@@ -89,7 +89,7 @@ class Colour:
 
     def to_string(self) -> str:
         """Convert the colour to rgb string."""
-        return f"rgb({self._r}, {self._g}, {self._b}"
+        return f"rgb({self._r}, {self._g}, {self._b})"
 
 
     @classmethod

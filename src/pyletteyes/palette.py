@@ -242,6 +242,20 @@ class Palette:
         """
         return [c.to_hex() for c in self._colours]
 
+    @classmethod
+    def from_string_list(cls, rgb_colours: List[str]) -> 'Palette':
+        """
+        Create a palette from a list of rgb colour strings.
+
+        Args:
+            rgb_colours (List[str]): List of rgb colour strings
+
+        Returns:
+            Palette: New Palette instance
+        """
+        colours = [Colour.from_string(rgb_str) for rgb_str in rgb_colours]
+        return cls(colours)
+
 
     def to_string_list(self) -> List[str]:
         """

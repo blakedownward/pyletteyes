@@ -25,10 +25,18 @@ print(pastel)
 palette = Palette([pastel, dark_red, red])
 
 # output as a list of rgb strings
-stringy = palette.to_string_list()
-print(stringy)
+string_list = palette.to_string_list()
+print(string_list)
 
 # or a list of hex codes
-hexs = palette.to_hex_list()
-print(hexs)
+hex_list = palette.to_hex_list()
+print(hex_list)
+
+# import as a list of rgb strings
+from_string_list = Palette.from_string_list(string_list)
+print(from_string_list.to_string_list())
+
+# import as a list of hex strings
+from_hex_list = Palette.from_hex_list(hex_list)
+print(from_hex_list.to_hex_list())
 
