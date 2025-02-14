@@ -63,6 +63,34 @@ class Colour:
         except ValueError:
             raise ValueError("Invalid HSL value")
 
+    @classmethod
+    def from_string(cls, rgb_string: str) -> 'Colour':
+        """
+        Create a Colour instance from an RGB string.
+
+        Args:
+            rgb_string (str): RGB in string format (e.g., "rgb(255, 0, 0)")
+
+        Returns:
+            Colour: New Colour instance
+
+        Raises:
+            ValueError: If RGB string is invalid
+        """
+        rgb_string = rgb_string.replace('rgb(', '').split(',')
+        rgb_string = [int(i.strip()) for i in rgb_string]
+
+        try:
+            r, g, b = rgb_string[0], rgb_string[1], rgb_string[2]
+            return cls(r, g, b)
+        except ValueError:
+            raise ValueError("Invalid rgb string")
+
+
+    def to_string(self) -> str:
+        """Convert the colour to rgb string."""
+        return f"rgb({self._r}, {self._g}, {self._b}"
+
 
     @classmethod
     def from_hex(cls, hex_string: str) -> 'Colour':

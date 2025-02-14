@@ -242,6 +242,16 @@ class Palette:
         """
         return [c.to_hex() for c in self._colours]
 
+
+    def to_string_list(self) -> List[str]:
+        """
+        Convert the palette to a list of rgb colour strings.
+
+        Returns:
+            List[str]: List of rgb colour strings
+        """
+        return [c.to_string() for c in self._colours]
+
     def __len__(self) -> int:
         """Get the number of colours in the palette."""
         return self.size
