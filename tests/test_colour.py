@@ -114,7 +114,7 @@ def test_equality():
 
 def test_string_representation():
     c = Colour(255, 128, 0)
-    assert repr(c) == "Colour(r=255, g=128, b=0)"
+    assert repr(c) == "rgb(255, 128, 0)"
 
 
 # Parameterized tests for various colour values
