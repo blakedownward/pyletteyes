@@ -107,7 +107,7 @@ class Palette:
         brightnesses = []
         for colour in self._colours:
             # Use the lightness component from HSL
-            _, lightness, _ = colour.hsl
+            _, _, lightness = colour.hsl
             brightnesses.append(lightness)
 
         return sum(brightnesses) / len(brightnesses)

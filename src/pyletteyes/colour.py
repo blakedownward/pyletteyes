@@ -36,7 +36,33 @@ class Colour:
     @property
     def hsl(self) -> Tuple[float, float, float]:
         """Get the HSL values as a tuple (Hue: 0-1, Saturation: 0-1, Lightness: 0-1)."""
-        return rgb_to_hls(self._r / 255, self._g / 255, self._b / 255)
+        hls = rgb_to_hls(self._r / 255, self._g / 255, self._b / 255)
+        return hls[0], hls[2], hls[1]  # must rearrange HLS to HSL
+
+    @classmethod
+    def from_hsl(cls, hsl: Tuple[float, float, float]) -> 'Colour':
+        """
+        Create a Colour instance from HSL values.
+
+        Args:
+            HSL values (tuple): Hue, Saturation, Lightness (e.g., (0.1, 0.3, 0.5))
+
+        Returns:
+            Colour: New Colour instance
+
+        Raises:
+            ValueError: If HSL values are invalid
+        """
+        for i in hsl:
+            if i < 0.0 or i > 1.0:
+                raise ValueError("HSL values must be within the range of 0.0 to 1.0")
+
+        try:
+            r, g, b = hls_to_rgb(h=hsl[0], l=hsl[2], s=hsl[1])
+            return cls(int(r * 255), int(g * 255), int(b * 255))
+        except ValueError:
+            raise ValueError("Invalid HSL value")
+
 
     @classmethod
     def from_hex(cls, hex_string: str) -> 'Colour':
@@ -64,7 +90,7 @@ class Colour:
 
     def to_hex(self) -> str:
         """Convert the colour to hex format."""
-        return f"#{self._r:02x}{self._g:02x}{self._b:02x}"
+        return f"#{self._r:02x}{self._g:02x}{self._b:02x}".upper()
 
     def lighten(self, amount: float = 0.1) -> 'Colour':
         """
@@ -76,7 +102,7 @@ class Colour:
         Returns:
             Colour: New lightened Colour instance
         """
-        h, l, s = self.hsl
+        h, s, l = self.hsl
         r, g, b = hls_to_rgb(h, min(1, l + amount), s)
         return Colour(int(r * 255), int(g * 255), int(b * 255))
 
@@ -90,7 +116,7 @@ class Colour:
         Returns:
             Colour: New darkened Colour instance
         """
-        h, l, s = self.hsl
+        h, s, l = self.hsl
         r, g, b = hls_to_rgb(h, max(0, l - amount), s)
         return Colour(int(r * 255), int(g * 255), int(b * 255))
 
@@ -102,7 +128,7 @@ class Colour:
         :return:
             Colour: New pastel-ised Colour instance
         """
-        h, l, s = self.hsl
+        h, s, l = self.hsl
         # Reduce saturation and increase lightness
         new_s = max(0.05, (s * 0.5))
         new_l = min(0.95, (l * 1.2))
@@ -117,7 +143,7 @@ class Colour:
         Returns:
             Colour: New Colour instance of the complementary colour
         """
-        h, l, s = self.hsl
+        h, s, l = self.hsl
         # Add 0.5 to hue to get the opposite colour (180 degrees on the colour wheel)
         new_h = (h + 0.5) % 1.0
         r, g, b = hls_to_rgb(new_h, l, s)
@@ -133,7 +159,7 @@ class Colour:
         Returns:
             Tuple[Colour, Colour]: Two new Colour instances
         """
-        h, l, s = self.hsl
+        h, s, l = self.hsl
         angle = angle / 360  # Convert to 0-1 range
 
         h1 = (h + angle) % 1.0

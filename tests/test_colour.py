@@ -43,7 +43,7 @@ def test_hex_conversion():
 def test_hsl_conversion():
     # Test pure red
     c = Colour(255, 0, 0)
-    h, l, s = c.hsl
+    h, s, l = c.hsl
     assert pytest.approx(h, abs=0.01) == 0.0  # Red hue
     assert pytest.approx(s, abs=0.01) == 1.0  # Full saturation
     assert pytest.approx(l, abs=0.01) == 0.5  # Mid lightness
