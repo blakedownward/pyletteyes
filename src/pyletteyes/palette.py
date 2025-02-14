@@ -55,6 +55,33 @@ class Palette:
 
         return sum(contrasts) / len(contrasts)
 
+
+    def score_uniqueness(self) -> float:
+        """
+        Score the palette based on how distinct colours are from one another.
+        Higher scores indicate greater uniqueness.
+        :return:
+            float: Uniqueness score between 0 and 1
+        """
+        if self.size < 2:
+            return 1.0
+
+        rgb_values = np.array([
+            [int(c.rgb[0]), int(c.rgb[1]), int(c.rgb[2])]
+            for c in self._colours
+        ], dtype=np.int32)
+
+        similarities = []
+        for i in range(len(rgb_values)):
+            for j in range(i + 1, len(rgb_values)):
+                # Max possible distance in RGB space is sqrt(255^2 * 3) ≈ 441.67
+                distance = np.sqrt(np.sum((rgb_values[i].astype(float) - rgb_values[j].astype(float)) ** 2))
+                similarity = 1 - (distance / 441.67)
+                similarities.append(similarity)
+
+        return float(1 - np.mean(similarities))
+
+
     def score_harmony(self) -> float:
         """
         Calculate the colour harmony score of the palette.
@@ -74,7 +101,7 @@ class Palette:
         harmony_scores = []
         for i, (h1, _, _) in enumerate(hsls):
             for h2, _, _ in hsls[i + 1:]:
-                # Calculate smallest hue difference accounting for circular nature
+                # Calculate the smallest hue difference accounting for circular nature
                 hue_diff = min(abs(h1 - h2), 1 - abs(h1 - h2))
 
                 # Score based on common harmony principles
@@ -96,6 +123,33 @@ class Palette:
 
         return sum(harmony_scores) / len(harmony_scores)
 
+    def score_saturation_variation(self) -> float:
+        """
+        Calculate a score based on variation in saturation levels.
+        :return:
+            float: Saturation variation score between 0 and 1
+        """
+        if self.size < 2:
+            return 1.0
+
+        saturations = [c.hsl[1] for c in self._colours]
+        return float(np.std(saturations))
+
+
+    def score_temperature_variation(self) -> float:
+        """
+        Calculate a score based on the mix of warm and cool colours.
+        :return:
+            float: Temperature variation score between 0 and 1
+        """
+        if self.size < 2:
+            return 1.0
+
+        hues = [c.hsl[0] for c in self._colours]
+        warm_colors = sum(1 for h in hues if h <= 0.167 or h >= 0.833)
+        cool_colors = len(hues) - warm_colors
+        return float(1 - abs(warm_colors - cool_colors) / len(hues))
+
 
     def score_brightness(self) -> float:
         """
@@ -112,6 +166,21 @@ class Palette:
 
         return sum(brightnesses) / len(brightnesses)
 
+
+    def score_brightness_balance(self) -> float:
+        """
+        Calculate a score based on the balance of light and dark colours.
+        :return:
+            float: Brightness (lightness) balance score between 0 and 1
+        """
+        if self.size < 2:
+            return 1.0
+
+        values = [c.hsl[2] for c in self._colours]
+
+        return float(1 - abs(np.mean(values) - 0.5) * 2)
+
+
     def get_dominant_colour(self) -> Colour:
         """
         Get the most dominant colour in the palette.
@@ -122,6 +191,7 @@ class Palette:
             Colour: The dominant colour
         """
         return self._colours[0]
+
 
     def add_colour(self, colour: Colour) -> None:
         """
@@ -147,6 +217,7 @@ class Palette:
         if self.size <= 1:
             raise ValueError("Cannot remove last colour from palette")
         self._colours.remove(colour)
+
 
     @classmethod
     def from_hex_list(cls, hex_colours: List[str]) -> 'Palette':

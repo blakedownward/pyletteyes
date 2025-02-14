@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 from pyletteyes.palette import Palette
 from pyletteyes.colour import Colour
 
@@ -151,3 +152,95 @@ def test_representation(basic_palette):
     for colour in basic_palette.colours:
         assert colour.to_hex() in repr_str
     assert repr_str.endswith("])")
+
+
+def test_uniqueness_score(basic_palette, monochrome_palette):
+    # Test that scores are in valid range
+    assert 0 <= basic_palette.score_uniqueness() <= 1
+    assert 0 <= monochrome_palette.score_uniqueness() <= 1
+
+    # Basic palette (Red, Green, Blue) should have high uniqueness
+    high_uniqueness = basic_palette.score_uniqueness()
+
+    # Monochrome palette should have low uniqueness
+    low_uniqueness = monochrome_palette.score_uniqueness()
+
+    assert high_uniqueness > low_uniqueness
+    assert high_uniqueness > 0.8  # RGB colours should be very unique
+    assert low_uniqueness < 0.5  # Similar blues should have low uniqueness
+
+
+def test_uniqueness_score_single_colour():
+    # Single colour palette should have perfect uniqueness
+    palette = Palette([Colour(255, 0, 0)])  # Single red
+    assert pytest.approx(palette.score_uniqueness(), abs=0.01) == 1.0
+
+
+def test_uniqueness_score_identical_colours():
+    # Palette with identical colours should have minimum uniqueness
+    palette = Palette([
+        Colour(255, 0, 0),  # Red
+        Colour(255, 0, 0)  # Same red
+    ])
+    assert pytest.approx(palette.score_uniqueness(), abs=0.01) == 0.0
+
+
+def test_uniqueness_score_similar_colours():
+    # Test with very similar but not identical colours
+    palette = Palette([
+        Colour(255, 0, 0),  # Red
+        Colour(250, 5, 5)  # Very similar red
+    ])
+    score = palette.score_uniqueness()
+    assert score < 0.2  # Should have low uniqueness score
+
+
+def test_brightness_balance_score_perfect_balance():
+    palette = Palette([
+        Colour.from_hsl((0, 0, 0.3)),
+        Colour.from_hsl((0, 0, 0.7))
+    ])
+    assert pytest.approx(palette.score_brightness_balance(), abs=0.01) == 1
+
+
+def test_brightness_balance_score_all_dark():
+    palette = Palette([
+        Colour.from_hsl((0, 0, 0.1)),
+        Colour.from_hsl((0, 0, 0.2)),
+        Colour.from_hsl((0, 0, 0.1))
+    ])
+
+    # calculate the mean lightness as an expected low score
+    mean_lightness = np.mean([0.1, 0.2, 0.1])
+
+    expected = 1 - abs(mean_lightness - 0.5) * 2
+    assert pytest.approx(palette.score_brightness_balance(), abs(0.01)) == expected
+
+
+def test_brightness_balance_score_all_light():
+    palette = Palette([
+        Colour.from_hsl((0, 0, 0.8)),
+        Colour.from_hsl((0, 0, 0.9)),
+        Colour.from_hsl((0, 0, 0.8))
+    ])
+
+    # calculate the mean lightness as an expected low score
+    mean_lightness = np.mean([0.8, 0.9, 0.8])
+
+    expected = 1 - abs(mean_lightness - 0.5) * 2
+    assert pytest.approx(palette.score_brightness_balance(), abs(0.01)) == expected
+
+
+def test_brightness_balance_score_mixed_colours():
+    palette = Palette([
+        Colour.from_hsl((0, 0, 0.2)),
+        Colour.from_hsl((0, 0, 0.4)),
+        Colour.from_hsl((0, 0, 0.6)),
+        Colour.from_hsl((0, 0, 0.8))
+    ])
+
+    # calculate the mean lightness as an expected low score
+    mean_lightness = np.mean([0.2, 0.4, 0.6, 0.8])
+
+    expected = 1 - abs(mean_lightness - 0.5) * 2
+    assert pytest.approx(palette.score_brightness_balance(), abs(0.01)) == expected
