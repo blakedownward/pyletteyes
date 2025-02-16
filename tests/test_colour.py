@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from pyletteyes.colour import Colour
 
 
@@ -47,6 +48,46 @@ def test_hsl_conversion():
     assert pytest.approx(h, abs=0.01) == 0.0  # Red hue
     assert pytest.approx(s, abs=0.01) == 1.0  # Full saturation
     assert pytest.approx(l, abs=0.01) == 0.5  # Mid lightness
+
+
+def test_from_hsl_valid():
+    """Test valid HSL to RGB conversion."""
+    test_cases = [
+        ((0.0, 0.0, 0.0), (0, 0, 0)),  # Black
+        ((0.0, 0.0, 1.0), (255, 255, 255)),  # White
+        ((0.0, 1.0, 0.5), (255, 0, 0)),  # Pure red
+        ((1 / 3, 1.0, 0.5), (0, 255, 0)),  # Pure green (exactly 1/3)
+        ((2 / 3, 1.0, 0.5), (0, 0, 255))  # Pure blue (exactly 2/3) # Blue
+    ]
+
+    for hsl, expected_rgb in test_cases:
+        colour = Colour.from_hsl(hsl)
+        assert (colour._r, colour._g, colour._b) == expected_rgb
+
+
+def test_from_hsl_out_of_range():
+    """Test HSL values outside the valid range."""
+    invalid_inputs = [
+        (-0.1, 0.5, 0.5),  # Negative hue
+        (0.5, -0.1, 0.5),  # Negative saturation
+        (0.5, 0.5, -0.1),  # Negative lightness
+        (1.1, 0.5, 0.5),  # Hue > 1
+        (0.5, 1.1, 0.5),  # Saturation > 1
+        (0.5, 0.5, 1.1)  # Lightness > 1
+    ]
+
+    for hsl in invalid_inputs:
+        with pytest.raises(ValueError, match="HSL values must be within the range of 0.0 to 1.0"):
+            Colour.from_hsl(hsl)
+
+
+# def test_from_hsl_colorsys_error():
+#     """Test handling of ValueError from colorsys.hls_to_rgb."""
+#     with patch('colorsys.hls_to_rgb') as mock_hls_to_rgb:
+#         mock_hls_to_rgb.side_effect = ValueError("Mock colorsys error")
+#
+#         with pytest.raises(ValueError, match="Invalid HSL value"):
+#             Colour.from_hsl((0.5, 0.5, 0.5))
 
 
 def test_lighten_darken():
@@ -130,3 +171,82 @@ def test_colour_values(r, g, b, hex_code):
     c = Colour(r, g, b)
     assert c.to_hex().upper() == hex_code
     assert Colour.from_hex(hex_code).rgb == (r, g, b)
+
+
+def test_valid_from_string():
+    """Test parsing of valid RGB strings."""
+    test_cases = [
+        ("rgb(255, 0, 0)", (255, 0, 0)),
+        ("rgb(0, 255, 0)", (0, 255, 0)),
+        ("rgb(0, 0, 255)", (0, 0, 255)),
+        ("rgb(128, 128, 128)", (128, 128, 128)),
+        ("rgb(0, 0, 0)", (0, 0, 0)),
+        ("rgb(255, 255, 255)", (255, 255, 255))
+    ]
+
+    for rgb_string, expected in test_cases:
+        colour = Colour.from_string(rgb_string)
+        assert colour._r == expected[0]
+        assert colour._g == expected[1]
+        assert colour._b == expected[2]
+
+
+def test_invalid_from_string():
+    """Test that invalid RGB strings raise appropriate errors."""
+    invalid_inputs = [
+        "rgb(256, 0, 0)",  # Red value too high
+        "rgb(-1, 0, 0)",  # Negative value
+        "rgb(0, 0",  # Missing closing parenthesis
+        "rgb(0, 0, 0, 0)",  # Too many values
+        "rgb(a, b, c)",  # Non-numeric values
+        "rgb()",  # Empty string
+        "rgb(0, 0,)",  # Missing value
+        "rgb(255.5, 0, 0)"  # Decimal values
+    ]
+
+    for invalid_input in invalid_inputs:
+        with pytest.raises(ValueError):
+            Colour.from_string(invalid_input)
+
+
+def test_to_string():
+    """Test conversion of Colour instances to RGB strings."""
+    test_cases = [
+        ((255, 0, 0), "rgb(255, 0, 0)"),
+        ((0, 255, 0), "rgb(0, 255, 0)"),
+        ((0, 0, 255), "rgb(0, 0, 255)"),
+        ((128, 128, 128), "rgb(128, 128, 128)"),
+        ((0, 0, 0), "rgb(0, 0, 0)"),
+        ((255, 255, 255), "rgb(255, 255, 255)")
+    ]
+
+    for rgb_values, expected in test_cases:
+        colour = Colour(*rgb_values)
+        assert colour.to_string() == expected
+
+
+def test_roundtrip():
+    """Test conversion from string to Colour and back preserves values."""
+    test_strings = [
+        "rgb(255, 0, 0)",
+        "rgb(0, 255, 0)",
+        "rgb(0, 0, 255)",
+        "rgb(128, 128, 128)",
+        "rgb(0, 0, 0)",
+        "rgb(255, 255, 255)"
+    ]
+
+    for rgb_string in test_strings:
+        colour = Colour.from_string(rgb_string)
+        assert colour.to_string() == rgb_string
+
+
+def test_edge_cases():
+    """Test edge cases for RGB string parsing."""
+    # Extra spaces shouldn't matter
+    colour = Colour.from_string("rgb(255, 0, 0)")
+    assert colour.to_string() == "rgb(255, 0, 0)"
+
+    # Whitespace at start/end shouldn't matter
+    colour = Colour.from_string("  rgb(255, 0, 0)  ")
+    assert colour.to_string() == "rgb(255, 0, 0)"

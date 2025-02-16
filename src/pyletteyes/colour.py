@@ -59,7 +59,7 @@ class Colour:
 
         try:
             r, g, b = hls_to_rgb(h=hsl[0], l=hsl[2], s=hsl[1])
-            return cls(int(r * 255), int(g * 255), int(b * 255))
+            return cls(round(r * 255), round(g * 255), round(b * 255))
         except ValueError:
             raise ValueError("Invalid HSL value")
 
@@ -77,8 +77,11 @@ class Colour:
         Raises:
             ValueError: If RGB string is invalid
         """
-        rgb_string = rgb_string.replace('rgb(', '').split(',')
+        rgb_string = rgb_string.replace('rgb(', '').replace(')', '').split(',')
         rgb_string = [int(i.strip()) for i in rgb_string]
+
+        if len(rgb_string) != 3:
+            raise ValueError("Invalid rgb string")
 
         try:
             r, g, b = rgb_string[0], rgb_string[1], rgb_string[2]

@@ -244,3 +244,28 @@ def test_brightness_balance_score_mixed_colours():
 
     expected = 1 - abs(mean_lightness - 0.5) * 2
     assert pytest.approx(palette.score_brightness_balance(), abs(0.01)) == expected
+
+
+def test_from_string_list():
+    string_palette = ["rgb(255, 0, 0)", "rgb(0, 255, 0)", "rgb(0, 0, 255)"]
+    converted_palette = Palette.from_string_list(string_palette)
+    expected_palette = Palette([Colour(255,0,0), Colour(0,255,0), Colour(0,0,255)])
+
+    assert converted_palette.colours == expected_palette.colours
+
+
+def test_to_string_list():
+    expected_palette = ["rgb(255, 0, 0)", "rgb(0, 255, 0)", "rgb(0, 0, 255)"]
+    input_palette = Palette([Colour(255, 0, 0), Colour(0, 255, 0), Colour(0, 0, 255)])
+
+    assert input_palette.to_string_list() == expected_palette
+
+
+def test_single_colour_palette():
+    scp = Palette.from_hex_list(["#FF0000"])
+
+    assert scp.score_brightness_balance() == 1.0
+    assert scp.score_temperature_variation() == 1.0
+    assert scp.score_saturation_variation() == 1.0
+    assert scp.score_harmony() == 1.0
+    assert scp.score_contrast() == 1.0
