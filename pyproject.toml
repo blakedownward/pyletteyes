@@ -33,3 +33,5 @@ dev = [
 
 [tool.setuptools_scm]
 write_to = "src/pyletteyes/_version.py"
+version_scheme = "post-release"
+local_scheme = "node-and-date"
