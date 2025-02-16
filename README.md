@@ -2,6 +2,9 @@
 
 A comprehensive Python library for colour manipulation and evaluation.
 
+Easily create Colour objects to manipulate or transform as required. Palette objects 
+offer a convenient methods for storing, accessing and scoring collections of Colour objects.
+
 ## Features
 
 - Colour space conversions (Hex, RGB, HSL)
@@ -18,7 +21,8 @@ pip install pyletteyes
 ## Basic Usage Example
 
 ```python
-from pyletteyes.colour import Colour
+from pyletteyes import Colour
+from pyletteyes import Palette
 
 # Create a colour and print RGB string
 red = Colour.from_hex("#FF0000")

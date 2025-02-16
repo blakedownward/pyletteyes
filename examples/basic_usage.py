@@ -1,5 +1,5 @@
-from pyletteyes.colour import Colour
-from pyletteyes.palette import Palette
+from pyletteyes import Colour
+from pyletteyes import Palette
 
 # Create a colour and print RGB string
 red = Colour.from_hex("#FF0000")
