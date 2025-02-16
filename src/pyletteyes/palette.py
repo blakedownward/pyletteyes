@@ -220,6 +220,29 @@ class Palette:
 
 
     @classmethod
+    def from_list(cls, rgb_colours: List[Tuple[int, int, int]]) -> 'Palette':
+        """
+        Create a palette from a list of hex colour strings.
+
+        Args:
+            rgb_colours (List[tuples]): List of rgb tuples
+
+        Returns:
+            Palette: New Palette instance
+        """
+        colours = [Colour(rgb[0], rgb[1], rgb[2]) for rgb in rgb_colours]
+        return cls(colours)
+
+    def to_list(self) -> list[tuple[int, int, int]]:
+        """
+        Convert the palette to a list of rgb tuples.
+
+        Returns:
+            List[str]: List of hex colour codes
+        """
+        return [c.rgb for c in self._colours]
+
+    @classmethod
     def from_hex_list(cls, hex_colours: List[str]) -> 'Palette':
         """
         Create a palette from a list of hex colour strings.
@@ -241,6 +264,7 @@ class Palette:
             List[str]: List of hex colour codes
         """
         return [c.to_hex() for c in self._colours]
+
 
     @classmethod
     def from_string_list(cls, rgb_colours: List[str]) -> 'Palette':
